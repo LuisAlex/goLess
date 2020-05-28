@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styles: [
   ]
 })
-export class Grafcias1Component implements OnInit {
+export class Graficas1Component implements OnInit {
 
   constructor() { }
 
