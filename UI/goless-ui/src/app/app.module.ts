@@ -12,6 +12,9 @@ import { Grafcias1Component } from './shared/grafcias1/grafcias1.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { BreadcrumbsComponent } from './shared/breadcrumbs/breadcrumbs.component';
+import {APP_ROUTES} from './routes';
+import { PagesComponent } from './pages/pages.component';
+import { RegisterComponent } from './login/register.component';
 
 @NgModule({
   declarations: [
@@ -24,11 +27,14 @@ import { BreadcrumbsComponent } from './shared/breadcrumbs/breadcrumbs.component
     Grafcias1Component,
     HeaderComponent,
     SidebarComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    PagesComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    APP_ROUTES
   ],
   providers: [],
   bootstrap: [AppComponent]
