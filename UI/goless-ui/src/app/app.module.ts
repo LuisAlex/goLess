@@ -8,6 +8,7 @@ import { RegisterComponent } from './login/register.component';
 import {PagesModule} from './pages/pages.module';
 import {FormsModule} from '@angular/forms';
 import {GraficasComponent} from './shared/graficas/graficas.component';
+import {SettingsService} from './services/settings.service';
 
 
 @NgModule({
@@ -24,7 +25,7 @@ import {GraficasComponent} from './shared/graficas/graficas.component';
     PagesModule,
     FormsModule
   ],
-  providers: [],
+  providers: [SettingsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
