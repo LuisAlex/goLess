@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-grafcias1',
-  templateUrl: './grafcias1.component.html',
+  selector: 'app-graficas',
+  templateUrl: './graficas.component.html',
   styles: [
   ]
 })
-export class Graficas1Component implements OnInit {
+export class GraficasComponent implements OnInit {
 
   constructor() { }
 
   ngOnInit(): void {
   }
-
 }
