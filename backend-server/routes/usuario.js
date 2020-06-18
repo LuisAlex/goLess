@@ -7,37 +7,107 @@ var jwt = require('jsonwebtoken');
 var app = express();
 var mdAuthentication = require('../middlewares/authentication');
 
+
 var Usuario = require('../models/usuario');
 
-//rutas
-// =====================================================
-// Obtener usuarios
-// =====================================================
+// ==========================================
+// Obtener todos los usuarios
+// ==========================================
 app.get('/', (req, res, next) => {
 
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
     Usuario.find({}, 'nombre email img role')
+        .skip(desde)
+        .limit(5)
         .exec(
             (err, usuarios) => {
 
                 if (err) {
-                    return res.status(400).json({
+                    return res.status(500).json({
                         ok: false,
                         mensaje: 'Error cargando usuario',
                         errors: err
                     });
                 }
 
-                res.status(200).json({
-                    ok: true,
-                    usuarios: usuarios
-                });
+                Usuario.count({}, (err, conteo) => {
+
+                    res.status(200).json({
+                        ok: true,
+                        usuarios: usuarios,
+                        total: conteo
+                    });
+
+                })
+
+
             });
 });
 
-// =====================================================
-// Crear usuraio
-// =====================================================
-app.post('/', mdAuthentication.vericaToken, (req, res) =>{
+
+// ==========================================
+// Actualizar usuario
+// ==========================================
+app.put('/:id', mdAuthentication.vericaToken, (req, res) => {
+
+    var id = req.params.id;
+    var body = req.body;
+
+    Usuario.findById(id, (err, usuario) => {
+
+
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al buscar usuario',
+                errors: err
+            });
+        }
+
+        if (!usuario) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El usuario con el id ' + id + ' no existe',
+                errors: {message: 'No existe un usuario con ese ID'}
+            });
+        }
+
+
+        usuario.nombre = body.nombre;
+        usuario.email = body.email;
+        usuario.role = body.role;
+
+        usuario.save((err, usuarioGuardado) => {
+
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'Error al actualizar usuario',
+                    errors: err
+                });
+            }
+
+            usuarioGuardado.password = ':)';
+
+            res.status(200).json({
+                ok: true,
+                usuario: usuarioGuardado
+            });
+
+        });
+
+    });
+
+});
+
+
+// ==========================================
+// Crear un nuevo usuario
+// ==========================================
+app.post('/', mdAuthentication.vericaToken, (req, res) => {
+
     var body = req.body;
 
     var usuario = new Usuario({
@@ -48,78 +118,31 @@ app.post('/', mdAuthentication.vericaToken, (req, res) =>{
         role: body.role
     });
 
-    usuario.save((err, usuarioGuardado) =>{
+    usuario.save((err, usuarioGuardado) => {
+
         if (err) {
-            return res.status(500).json({
+            return res.status(400).json({
                 ok: false,
                 mensaje: 'Error al crear usuario',
                 errors: err
             });
         }
+
         res.status(201).json({
             ok: true,
             usuario: usuarioGuardado,
-            usuarioToken : req.usuario
+            usuariotoken: req.usuario
         });
+
+
     });
+
 });
 
-// =====================================================
-// Acutalizar usuraio
-// =====================================================
-app.put('/:id', mdAuthentication.vericaToken, (req, res) => {
-    var id = req.params.id;
-    var body = req.body;
 
-    Usuario.findById( id, (err, usuario) =>{
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error al buscar usuario',
-                errors: err
-            });
-        }
-        if ( !usuario) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'Usuario con ' + id +' no existe',
-                errors: err
-            });
-        }
-
-        usuario.nombre = body.nombre;
-        usuario.email = body.email;
-        usuario.role = body.role;
-
-        usuario.save((err, usuarioGuardado) =>{
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: 'Error al actualizar usuario',
-                    errors: err
-                });
-            }
-            if ( !usuario) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'Usuario con ' + id +' no existe',
-                    errors: err
-                });
-            }
-            usuarioGuardado.password = '*****';
-            res.status(200).json({
-                ok: true,
-                usuario: usuarioGuardado,
-                usuarioToken : req.usuario
-            });
-        });
-    });
-});
-
-// =====================================================
-// Borrar usuraio
-// =====================================================
-
+// ============================================
+//   Borrar un usuario por el id
+// ============================================
 app.delete('/:id', mdAuthentication.vericaToken, (req, res) => {
 
     var id = req.params.id;
@@ -138,18 +161,18 @@ app.delete('/:id', mdAuthentication.vericaToken, (req, res) => {
             return res.status(400).json({
                 ok: false,
                 mensaje: 'No existe un usuario con ese id',
-                errors: { message: 'No existe un usuario con ese id' }
+                errors: {message: 'No existe un usuario con ese id'}
             });
         }
 
         res.status(200).json({
             ok: true,
-            usuario: usuarioBorrado,
-            usuarioToken : req.usuario
+            usuario: usuarioBorrado
         });
 
     });
 
 });
+
 
 module.exports = app;
